@@ -16,3 +16,22 @@ recognition.addEventListener('result', (e) => {
 
    console.log('Confidence: ' + e.results[0][0].confidence);
 });
+
+io.on('connection', function(socket) {
+   socket.on('chat message', (text) => {
+      let apiaiReq = apiai.textRequest(text, {
+         sessionId: APIAI_SESSION_ID
+      });
+
+      apiaiReq.on('response', (response) => {
+         let aiText = response.result.fulfillment.speech;
+         socket.emit('bot reply', aiText);
+      });
+
+      apiaiReq.on('error', (error) => {
+         console.log(error);
+      });
+
+      apiaiReq.end();
+   });
+});
